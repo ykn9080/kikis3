@@ -14,7 +14,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 require("./app/routes")(app);
-
+app.get("/healthcheck", (req, res) => res.send("Hello World!"));
 // set port, listen for requests
 const PORT = process.env.NODE_DOCKER_PORT || 8083;
 app.listen(PORT, () => {

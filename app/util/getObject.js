@@ -3,7 +3,7 @@ var AWS = require("aws-sdk");
 
 require("dotenv").config();
 
-const s3 = new AWS.S3();
+let s3 = new AWS.S3();
 AWS.config.update({
   accessKeyId: process.env.AWS_IAM_USER_KEY,
   secretAccessKey: process.env.AWS_IAM_USER_SECRET,
@@ -15,7 +15,7 @@ exports.getS3Object = async (req, res) => {
   AWS.config.update({ region: bd.region });
 
   // Create S3 service object
-  s3 = new AWS.S3();
+  // s3 = new AWS.S3();
 
   try {
     const params = {
@@ -45,7 +45,7 @@ exports.getS3ObjectVersion = async (req, res) => {
   AWS.config.update({ region: bd.region });
 
   // Create S3 service object
-  s3 = new AWS.S3();
+  //s3 = new AWS.S3();
   let params = {
     Bucket: bd.bucketname,
     Key: bd.key,

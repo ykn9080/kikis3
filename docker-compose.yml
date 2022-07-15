@@ -20,7 +20,7 @@ services:
     # --기존 container db와 연결할 경우 external_links
     # external_links:
     #   - mariadb
-    image: diorcokorea/s3
+    image: yknam/s3
     container_name: s3
     build: ./
     restart: unless-stopped

@@ -18,6 +18,7 @@ exports.getS3Url = async (req, res) => {
 
   let signedUrlExpireSeconds = 60 * 5;
   if (bd.expireseconds) signedUrlExpireSeconds = bd.expireseconds;
+  if (bd.vesionId) VersionId = bd.versionId;
   const param = {
     Bucket: bd.bucketname,
     Key: bd.key,
@@ -25,4 +26,25 @@ exports.getS3Url = async (req, res) => {
   };
   const url = s3.getSignedUrl("getObject", param);
   res.status(200).send(url);
+};
+exports.getS3UrlMultiple = (req, res) => {
+  const bd = req.body;
+  console.log(bd);
+  //AWS.config.update({ region: bd.region });
+
+  let signedUrlExpireSeconds = 60 * 5;
+  let rtn = [];
+  bd.map((k, i) => {
+    if (k.expireseconds) signedUrlExpireSeconds = k.expireseconds;
+    if (k.vesionId) VersionId = k.versionId;
+    const param = {
+      Bucket: k.bucketname,
+      Key: k.key,
+      Expires: signedUrlExpireSeconds,
+    };
+    const url = s3.getSignedUrl("getObject", param);
+    rtn.push(url);
+  });
+
+  res.status(200).send(rtn);
 };

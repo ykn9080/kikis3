@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: latest
+    commands:
+      - aws --version
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 680023014864.dkr.ecr.ap-northeast-2.amazonaws.com
+      - npm install yarn
+  build:
+    commands:
+      - docker build -t s3-server .
+  post_build:
+    commands:
+      - docker tag s3-server:latest 680023014864.dkr.ecr.ap-northeast-2.amazonaws.com/s3-server:latest
+      - docker push 680023014864.dkr.ecr.ap-northeast-2.amazonaws.com/s3-server:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"s3-server","imageUri":"%s"}]'  680023014864.dkr.ecr.ap-northeast-2.amazonaws.com/s3-server:latest > imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json

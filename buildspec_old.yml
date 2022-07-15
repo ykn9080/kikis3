@@ -1,0 +1,35 @@
+version: 0.2
+env:
+  variables:
+    AWS_DEFAULT_REGION: "ap-northeast-2"
+    AWS_ACCOUNT_ID: "680023014864"
+    IMAGE_REPO_NAME: "s3-server"
+    REPOSITORY_URI: "680023014864.dkr.ecr.ap-northeast-2.amazonaws.com/s3-server"
+  parameter-store:
+    LOGIN_PASSWORD: /CodeBuild/dockerLoginPassword
+
+phases:
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR...
+      - aws --version
+      - aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 680023014864.dkr.ecr.ap-northeast-2.amazonaws.com
+
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - docker build -t $REPOSITORY_URI:latest .
+      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Build completed on `date`
+      - echo Pushing the Docker images...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG
+      - echo Writing image definitions file...
+      - printf '[{"name":"s3","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+      - cat imagedefinitions.json
+artifacts:
+  files: imagedefinitions.json
